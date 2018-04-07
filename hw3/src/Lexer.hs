@@ -23,16 +23,17 @@ data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | D
 -- Report an error if given string is not a correct expression.
 runLexer :: String -> [Lexeme]
 runLexer str = case parse parseLexemes (clearString str) of
-    Right ("", result) -> result
-    Right _ -> error "Failed to parse all input."
-    Left err -> error err
+    Right ("", result)  -> result
+    Right _             -> error "Failed to parse all input."
+    Left  err           -> error err
 
+-- Parser for all Lexemes.
 parseLexemes :: Parser Char [Lexeme]
-parseLexemes = many (parseNumber <|> parseBrace)
+parseLexemes = many (parseNumber <|> parseBrace <|> parseOperation)
 
 -- Removes all space characters.
 clearString :: String -> String
-clearString = filter (\c -> c /= ' ' && c /= '\t')
+clearString = filter (\c -> not $ elem c " \t")
 
 -----------------------------------------------------------------------
 -- Parse Number
@@ -56,7 +57,7 @@ parseNumber = fmap (Number . listToDecimal) (some parseDigit)
 
 -- Parser for braces.
 parseBrace :: Parser Char Lexeme
-parseBrace = fmap getBraceType (satisfy (\c -> c == '(' || c == ')') "Failed to parse Brace.")
+parseBrace = fmap getBraceType (satisfy (\c -> elem c "()") "Failed to parse Brace.")
 
 -- Returns brace type OpenBrace '(' or CloseBrace ')'.
 getBraceType :: Char -> Lexeme
@@ -67,8 +68,8 @@ getBraceType brace = if brace == '(' then OpenBrace else CloseBrace
 -----------------------------------------------------------------------
 
 -- Parser for operations.
-parseBrace :: Parser Char Lexeme
-parseBrace = fmap getBraceType (satisfy (\c -> elem c '+-*/^') "Failed to parse Operation.")
+parseOperation :: Parser Char Lexeme
+parseOperation = fmap getOperationType (satisfy (\c -> elem c "+-*/^") "Failed to parse Operation.")
 
 -- Returns operation type (+, -, *, /, ^).
 getOperationType :: Char -> Lexeme

@@ -1,9 +1,9 @@
 module Main where
 
-import Lexer
+import SyntaxAnalyzer
 
 main :: IO ()
 main = do
-    putStrLn "Enter expression."
+    putStrLn "Enter expression:"
     expr <- getLine
-    putStrLn $ show $ runLexer expr
+    putStrLn $ show $ analyzeExpression expr

@@ -31,7 +31,7 @@ analyzeExpression str = buildExprAST $ runLexer str
 buildExprAST :: [Lexeme] -> Expr
 buildExprAST tokens = case parse parseExpr tokens of
     Right ([], result)   -> result
-    Right (rest, result) -> error ("Failed failed to parse till the end of the line." ++ (show rest))
+    Right (rest, result) -> error ("Failed failed to parse till the end of the line.\n" ++ show (take (length tokens - length rest) tokens) ++ "  Error:  " ++ (show rest))
     Left  err            -> error err
 
 -- Parser for expression.

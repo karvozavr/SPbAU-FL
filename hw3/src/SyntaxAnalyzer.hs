@@ -18,7 +18,7 @@ data Expr
     | Minus Expr Expr
     | Mul Expr Expr
     | Div Expr Expr
-    | Deg Expr Expr
+    | Pow Expr Expr
     | Number Int
     deriving (Show, Eq)
 
@@ -26,52 +26,17 @@ data Expr
 -- Transforms given string to AST.
 -- Report an error if given string is not a correct arithmetic expression.
 analyzeExpression :: String -> Expr
-analyzeExpression str = buildAST $ runLexer str
+analyzeExpression str = buildExprAST $ runLexer str
 
-buildAST :: [Lexeme] -> Expr
-buildAST tokens = case parse parseExpr tokens of
+buildExprAST :: [Lexeme] -> Expr
+buildExprAST tokens = case parse parseExpr tokens of
     Right ([], result)   -> result
     Right (rest, result) -> error ("Failed failed to parse till the end of the line." ++ (show rest))
     Left  err            -> error err
 
-
 -- Parser for expression.
 parseExpr :: Parser Lexeme Expr
-parseExpr = parsePlusMinus <|> parseMulDiv <|> parseSingleNumber <|> parseBraces
-
--- Optimizes binary operation parsing:
--- if failed to parse operation because of the end of line, return left operand as parsed expression.
-optimizeBinOp :: (Expr -> Expr -> Expr) -> Parser Lexeme Expr -> Parser Lexeme (Maybe Lexeme -> Expr -> Expr)
-optimizeBinOp constructor = fmap (optimizeBinOpHelper constructor)
-
-optimizeBinOpHelper :: (Expr -> Expr -> Expr) -> Expr -> Maybe Lexeme -> Expr -> Expr
-optimizeBinOpHelper constructor a operation b | operation == Nothing = a
-                                              | otherwise            = constructor a b
-
---lexemeToExprConstructor :: Lexeme -> (Expr -> Expr -> Expr)
---lexemeToExprConstructor lexeme = case lexeme of
---    Lexer.Plus  -> SyntaxAnalyzer.Plus
---    Lexer.Minus -> SyntaxAnalyzer.Minus
---    Lexer.Mul   -> SyntaxAnalyzer.Mul
---    Lexer.Div   -> SyntaxAnalyzer.Div
---    Lexer.Deg   -> SyntaxAnalyzer.Deg
-
-
------------------------------------------------------------------------
--- Parse plus expression.
------------------------------------------------------------------------
-
---parsePlus :: Parser Lexeme Expr
---parsePlus = (optimizeBinOp SyntaxAnalyzer.Plus parseLeftPlusOperand) <*> parsePlusOperation <*> parseRightPlusOperand
---
---parsePlusOperation :: Parser Lexeme (Maybe Lexeme)
---parsePlusOperation = satisfyOrEnd isPlusLexeme "Failed to parse plus."
---
---parseLeftPlusOperand :: Parser Lexeme Expr
---parseLeftPlusOperand = parseMul <|> parseDiv <|> parseBraces <|> parseSingleNumber
---
---parseRightPlusOperand :: Parser Lexeme Expr
---parseRightPlusOperand = parseExpr
+parseExpr = parsePlusMinus <|> parseMulDiv <|> parsePow <|> parseBraces <|> parseSingleNumber
 
 -----------------------------------------------------------------------
 -- Parse plus, minus priority expression.
@@ -97,7 +62,7 @@ parsePlusMinusHelper left tokens
     | otherwise                  = Right (tokens, left)
 
 parsePlusMinusOperand :: Parser Lexeme Expr
-parsePlusMinusOperand = parseMulDiv <|> parseBraces <|> parseSingleNumber
+parsePlusMinusOperand = parseMulDiv <|> parsePow <|> parseBraces <|> parseSingleNumber
 
 -----------------------------------------------------------------------
 -- Parse multiply, divide priority expression.
@@ -106,7 +71,7 @@ parsePlusMinusOperand = parseMulDiv <|> parseBraces <|> parseSingleNumber
 parseMulDiv :: Parser Lexeme Expr
 parseMulDiv = Parser f where
     f tokens = case parse parseMulDivOperand tokens of
-        Right (ts, result) -> parsePlusMinusHelper result ts
+        Right (ts, result) -> parseMulDivHelper result ts
         other              -> other
 
 parseMulDivHelper :: Expr -> [Lexeme] -> Either String ([Lexeme], Expr)
@@ -123,40 +88,20 @@ parseMulDivHelper left tokens
     | otherwise                = Right (tokens, left)
 
 parseMulDivOperand :: Parser Lexeme Expr
-parseMulDivOperand = parseBraces <|> parseSingleNumber
-
+parseMulDivOperand = parsePow <|> parseBraces <|> parseSingleNumber
 
 -----------------------------------------------------------------------
--- Parse multiply expression.
+-- Parse power priority expression.
 -----------------------------------------------------------------------
 
---parseMul :: Parser Lexeme Expr
---parseMul = (optimizeBinOp SyntaxAnalyzer.Mul parseLeftMulOperand) <*> parseMulOperation <*> parseRightMulOperand
---
---parseMulOperation :: Parser Lexeme (Maybe Lexeme)
---parseMulOperation = satisfyOrEnd isMulLexeme "Failed to parse multiplication."
---
---parseLeftMulOperand :: Parser Lexeme Expr
---parseLeftMulOperand = parseBraces <|> parseSingleNumber
---
---parseRightMulOperand :: Parser Lexeme Expr
---parseRightMulOperand = parseMul <|> parseDiv <|> parseBraces <|> parseSingleNumber
---
--------------------------------------------------------------------------
----- Parse divide expression.
--------------------------------------------------------------------------
---
---parseDiv :: Parser Lexeme Expr
---parseDiv = (optimizeBinOp SyntaxAnalyzer.Div parseLeftDivOperand) <*> parseDivOperation <*> parseRightDivOperand
---
---parseDivOperation :: Parser Lexeme (Maybe Lexeme)
---parseDivOperation = satisfyOrEnd isDivLexeme "Failed to parse division."
---
---parseLeftDivOperand :: Parser Lexeme Expr
---parseLeftDivOperand = parseBraces <|> parseSingleNumber
---
---parseRightDivOperand :: Parser Lexeme Expr
---parseRightDivOperand = parseRightMulOperand
+parsePow :: Parser Lexeme Expr
+parsePow = (fmap (\a op b -> SyntaxAnalyzer.Pow a b) parsePowOperand) <*> parsePowOperator <*> (parsePow <|> parsePowOperand)
+
+parsePowOperator :: Parser Lexeme Lexeme
+parsePowOperator = satisfy (\op -> op == Lexer.Pow) "Failed to parse power."
+
+parsePowOperand :: Parser Lexeme Expr
+parsePowOperand = parseBraces <|> parseSingleNumber
 
 -----------------------------------------------------------------------
 -- Parse expression in braces.

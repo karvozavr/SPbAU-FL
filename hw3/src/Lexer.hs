@@ -11,7 +11,7 @@ import Parser
 import Data.Char
 import Control.Applicative
 
-data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | Deg
+data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | Pow
     deriving (Show, Eq)
 
 -----------------------------------------------------------------------
@@ -79,7 +79,7 @@ getOperationType op = case op of
     '-' -> Minus
     '*' -> Mul
     '/' -> Div
-    '^' -> Deg
+    '^' -> Pow
 
 -- Checks if Lexeme is a Number.
 isNumberLexeme :: Lexeme -> Bool
@@ -106,10 +106,10 @@ isDivLexeme :: Lexeme -> Bool
 isDivLexeme Div = True
 isDivLexeme _  = False
 
--- Checks if Lexeme is a Deg.
-isDegLexeme :: Lexeme -> Bool
-isDegLexeme Deg = True
-isDegLexeme _  = False
+-- Checks if Lexeme is a Pow.
+isPowLexeme :: Lexeme -> Bool
+isPowLexeme Pow = True
+isPowLexeme _  = False
 
 -- Checks if Lexeme is a CloseBrace.
 isCloseBraceLexeme :: Lexeme -> Bool

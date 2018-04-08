@@ -12,7 +12,7 @@ import Data.Char
 import Control.Applicative
 
 data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | Deg
-    deriving Show
+    deriving (Show, Eq)
 
 -----------------------------------------------------------------------
 -- Parse Lexemes
@@ -23,6 +23,7 @@ data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | D
 -- Report an error if given string is not a correct expression.
 runLexer :: String -> [Lexeme]
 runLexer str = case parse parseLexemes (clearString str) of
+    Right ("", [])      -> error "Empty expression."
     Right ("", result)  -> result
     Right _             -> error "Failed to parse all input."
     Left  err           -> error err
@@ -79,3 +80,44 @@ getOperationType op = case op of
     '*' -> Mul
     '/' -> Div
     '^' -> Deg
+
+-- Checks if Lexeme is a Number.
+isNumberLexeme :: Lexeme -> Bool
+isNumberLexeme (Lexer.Number _) = True
+isNumberLexeme _                = False
+
+-- Checks if Lexeme is a Plus.
+isPlusLexeme :: Lexeme -> Bool
+isPlusLexeme Plus = True
+isPlusLexeme _  = False
+
+-- Checks if Lexeme is a Minus.
+isMinusLexeme :: Lexeme -> Bool
+isMinusLexeme Minus = True
+isMinusLexeme _  = False
+
+-- Checks if Lexeme is a Mul.
+isMulLexeme :: Lexeme -> Bool
+isMulLexeme Mul = True
+isMulLexeme _  = False
+
+-- Checks if Lexeme is a Div.
+isDivLexeme :: Lexeme -> Bool
+isDivLexeme Div = True
+isDivLexeme _  = False
+
+-- Checks if Lexeme is a Deg.
+isDegLexeme :: Lexeme -> Bool
+isDegLexeme Deg = True
+isDegLexeme _  = False
+
+-- Checks if Lexeme is a CloseBrace.
+isCloseBraceLexeme :: Lexeme -> Bool
+isCloseBraceLexeme CloseBrace = True
+isCloseBraceLexeme _  = False
+
+-- Checks if Lexeme is a OpenBrace.
+isOpenBraceLexeme :: Lexeme -> Bool
+isOpenBraceLexeme OpenBrace = True
+isOpenBraceLexeme _  = False
+

@@ -1,9 +1,9 @@
 - Настройка и установка: запуск скрипта `setup.sh` 
 
-- `cabal build` для сборки. Бинарник лежит по адресу `dist/build/hw3/hw3`
+- `cabal build` для сборки. Бинарник лежит по адресу `dist/build/syntax-analyzer/syntax-analyzer`
 
 - Собранный бинарник (x86-64 posix compatiable) лежит в архиве
 
 - Тесты при помощи `test.sh`. Тесты лежат в `tests/`. 
 
-- Использование: запустить `hw3`, принимает в stdin выражение, в stdout выдает дерево
+- Использование: запустить `syntax-analyzer`, принимает в stdin выражение, в stdout выдает дерево

@@ -11,7 +11,7 @@ import Parser
 import Data.Char
 import Control.Applicative
 
-data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | Pow
+data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | Pow | SpaceSymbol
     deriving (Show, Eq)
 
 -----------------------------------------------------------------------
@@ -24,17 +24,21 @@ data Lexeme = Number Int | OpenBrace | CloseBrace | Plus | Minus | Mul | Div | P
 runLexer :: String -> [Lexeme]
 runLexer str = case parse parseLexemes (clearString str) of
     Right ("", [])      -> error "Empty expression."
-    Right ("", result)  -> result
+    Right ("", result)  -> filter (\l -> l /= SpaceSymbol) result
     Right _             -> error "Failed to parse all input."
     Left  err           -> error err
 
 -- Parser for all Lexemes.
 parseLexemes :: Parser Char [Lexeme]
-parseLexemes = many (parseNumber <|> parseBrace <|> parseOperation)
+parseLexemes = many (parseSpaceSymbol <|> parseNumber <|> parseBrace <|> parseOperation)
 
 -- Removes all space characters.
 clearString :: String -> String
-clearString = filter (\c -> not $ elem c " \t\n")
+clearString = filter (\c -> not $ elem c "\t\n")
+
+parseSpaceSymbol :: Parser Char Lexeme
+parseSpaceSymbol = fmap (\_ -> SpaceSymbol) (satisfy (\c -> c == ' ') "Failed to parse space symbol.")
+
 
 -----------------------------------------------------------------------
 -- Parse Number

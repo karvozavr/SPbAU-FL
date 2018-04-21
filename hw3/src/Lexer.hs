@@ -34,7 +34,7 @@ parseLexemes = many (parseNumber <|> parseBrace <|> parseOperation)
 
 -- Removes all space characters.
 clearString :: String -> String
-clearString = filter (\c -> not $ elem c " \t")
+clearString = filter (\c -> not $ elem c " \t\n")
 
 -----------------------------------------------------------------------
 -- Parse Number

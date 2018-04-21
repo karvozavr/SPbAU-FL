@@ -1,9 +1,12 @@
 module Main where
 
+import System.Environment
+import System.IO
 import SyntaxAnalyzer
 
 main :: IO ()
 main = do
-    putStrLn "Enter expression:"
-    expr <- getLine
+    path <- fmap head getArgs
+    expr <- readFile path
     putStrLn $ show $ analyzeExpression expr
+

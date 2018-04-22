@@ -6,3 +6,4 @@
  - Иначе выполнить `source venv/bin/activate` для активации virtualenv с предустановленными зависимостями
  - Запуск приложения `python3 main.py` или `./main.py`
  - Инструкция и аргуметы: `python3 main.py --help`
+ - Деактивация (venv) -- закрыть консоль, либо `deactivate`

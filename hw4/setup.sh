@@ -10,4 +10,5 @@ if [ $? -ne 0 ]; then
     sudo pip3 install virtualenv 
 fi
 
-# source venv/bin/activate
+source venv/bin/activate
+sudo pip3 install -r requirements.txt

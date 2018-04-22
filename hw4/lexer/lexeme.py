@@ -3,15 +3,9 @@ import re
 WHITESPACE = [' ', '\f', '\t', '\n', '\r', '\n\r']
 
 
-class LexerError(Exception):
-    __slots__ = ('position',)
-
-    def __init__(self, message, position):
-        super().__init__(message)
-        self.position = position
-
-
 class Lexeme:
+    format = '{type}({value}, {line}, {start}, {end})'
+
     class LexemeInfo:
         __slots__ = ('line', 'interval')
 
@@ -19,34 +13,55 @@ class Lexeme:
             self.line = line
             self.interval = interval
 
+        def __eq__(self, other):
+            return self.line == other.line and \
+                   self.interval == other.interval
+
     __slots__ = ('value', 'info')
 
     def __init__(self, value, line, interval):
         self.info = Lexeme.LexemeInfo(line=line, interval=interval)
         self.value = value
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and \
+               self.value == other.value and \
+               self.info == other.info
+
     @staticmethod
-    def parse(s, pos, line):
+    def parse(s: str, position: int, line: int):
         """
         Parse this lexeme.
 
         :param s: string to parse from
-        :param pos: position in the string
+        :param position: position in the string
         :param line: current line
         :return: parsed lexeme
         """
         raise NotImplementedError
 
+    @staticmethod
+    def set_lexeme_format(fmt='{type}({value}, {line}, ({start}, {end}))'):
+        """
+        Lexeme string format
+
+        :param fmt: format string, you may use: {type}, {value}, {line}, {start}, {end}
+        """
+        Lexeme.format = fmt
+
     def __str__(self):
-        fmt = '{type}("{value}", {line}, {start}, {end})'
+        fmt = Lexeme.format
         start, end = self.info.interval
         return fmt.format(
             type=self.__class__.__name__,
-            value=self.value,
+            value=self.value_str(),
             line=self.info.line,
             start=start,
             end=end
         )
+
+    def value_str(self):
+        return '\'{value}\''.format(value=self.value)
 
 
 class Keyword(Lexeme):
@@ -64,12 +79,11 @@ class Keyword(Lexeme):
         super().__init__(value, line, interval)
 
     @staticmethod
-    def parse(s: str, pos: int, line):
-        s = s[pos:]
+    def parse(s: str, position: int, line: int):
         for value in Keyword.lexeme_value.values():
-            end = len(value) + pos
-            if s.startswith(value) and is_terminal(s, end):
-                return Keyword(value=value, line=line, interval=(pos, end))
+            end = len(value) + position
+            if s.startswith(value, position) and is_terminal(s, end):
+                return Keyword(value=value, line=line, interval=(position, end))
         return None
 
 
@@ -78,18 +92,26 @@ class Number(Lexeme):
         super().__init__(value, line, interval)
 
     @staticmethod
-    def parse(s: str, pos: int, line):
-        s = s[pos:]
-        number, length = Number._get_number(s)
-        end = pos + length
-        if length > 0 and is_terminal(s, end):
-            return Number(value=number, line=line, interval=(pos, end))
+    def parse(s: str, position: int, line: int):
+        number, length = Number._get_number(s[position:])
+        end = position + length
+        if length > 0 and is_terminal(s, end) and Number._good_number_end(s, end):
+            return Number(value=number, line=line, interval=(position, end))
         return None
 
     @staticmethod
     def _get_number(s) -> (float, int):
-        result = re.search(r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?', s)
+        result = re.search(r'^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?', s)
         return (float(result.group()), len(result.group())) if result is not None else (0, 0)
+
+    def value_str(self):
+        return '{value}'.format(value=self.value)
+
+    @staticmethod
+    def _good_number_end(s, idx):
+        if idx < len(s):
+            return s[idx] != '.'
+        return True
 
 
 class Bool(Lexeme):
@@ -102,12 +124,11 @@ class Bool(Lexeme):
         super().__init__(value, line, interval)
 
     @staticmethod
-    def parse(s: str, pos: int, line):
-        s = s[pos:]
+    def parse(s: str, position: int, line: int):
         for value in Bool.lexeme_value.values():
-            end = len(value) + pos
-            if s.startswith(value) and is_terminal(s, end):
-                return Bool(value=value, line=line, interval=(pos, end))
+            end = len(value) + position
+            if s.startswith(value, position) and is_terminal(s, end):
+                return Bool(value=value, line=line, interval=(position, end))
         return None
 
 
@@ -120,21 +141,20 @@ class Op(Lexeme):
         MOD='%',
         EQ='==',
         NEQ='!=',
-        GT='>',
         GE='>=',
-        LT='<',
         LE='<=',
+        GT='>',
+        LT='<',
         AND='&&',
         OR='||'
     )
 
     @staticmethod
-    def parse(s: str, pos: int, line):
-        s = s[pos:]
+    def parse(s: str, position: int, line: int):
         for value in Op.lexeme_value.values():
-            end = len(value) + pos
-            if s.startswith(value):
-                return Op(value=value, line=line, interval=(pos, end))
+            end = len(value) + position
+            if s.startswith(value, position):
+                return Op(value=value, line=line, interval=(position, end))
         return None
 
     def __init__(self, value, line, interval):
@@ -146,12 +166,11 @@ class Ident(Lexeme):
         super().__init__(value, line, interval)
 
     @staticmethod
-    def parse(s, pos, line):
-        s = s[pos:]
-        ident, length = Ident._get_ident(s)
-        end = pos + length
+    def parse(s, position, line):
+        ident, length = Ident._get_ident(s[position:])
+        end = position + length
         if length > 0 and is_terminal(s, end):
-            return Ident(value=ident, line=line, interval=(pos, end))
+            return Ident(value=ident, line=line, interval=(position, end))
         return None
 
     @staticmethod
@@ -171,12 +190,11 @@ class Delim(Lexeme):
     )
 
     @staticmethod
-    def parse(s: str, pos: int, line):
-        s = s[pos:]
+    def parse(s: str, position: int, line):
         for value in Delim.lexeme_value.values():
-            end = len(value) + pos
-            if s.startswith(value):
-                return Delim(value=value, line=line, interval=(pos, end))
+            end = len(value) + position
+            if s.startswith(value, position):
+                return Delim(value=value, line=line, interval=(position, end))
         return None
 
     def __init__(self, value, line, interval):

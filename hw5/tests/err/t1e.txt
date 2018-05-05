@@ -1,0 +1,2 @@
+read a;
+if a >= 3b then;

@@ -1,0 +1,18 @@
+[
+  "lexer/test_lexeme.py::test_keyword_parse",
+  "lexer/test_lexeme.py::test_keyword_parse_from_position",
+  "lexer/test_lexeme.py::test_keyword_parse_error",
+  "lexer/test_lexeme.py::test_number_parse",
+  "lexer/test_lexeme.py::test_number_parse_error",
+  "lexer/test_lexeme.py::test_parse_ident",
+  "lexer/test_lexeme.py::test_parse_ident_error",
+  "lexer/test_lexer.py::test_valid1",
+  "lexer/test_lexer.py::test_valid2",
+  "lexer/test_lexer.py::test_valid3",
+  "lexer/test_lexer.py::test_valid4",
+  "lexer/test_lexer.py::test_valid5",
+  "lexer/test_lexer.py::test_valid6",
+  "lexer/test_lexer.py::test_err1",
+  "lexer/test_lexer.py::test_err2",
+  "lexer/test_lexer.py::test_err3"
+]

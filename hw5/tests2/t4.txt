@@ -1,0 +1,4 @@
+if then else while do skip write read
++ - * / == != && || < <= >= > ;
+123 4312
+blah

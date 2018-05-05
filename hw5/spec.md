@@ -23,16 +23,16 @@ if (a > b) then {
 
 - Highest level constructions are function definitions only!
 ```c++
-function_name0(arg1name, arg2name, ...) {
+function_name0(ident, ident, ...) {
     function body
 }
-function_name1(arg1name, arg2name, ...) {
+function_name1(ident, ident, ...) {
     function body
 }
-function_name2(arg1name, arg2name, ...) {
+function_name2(ident, ident, ...) {
     function body
 }
-main(arg1name, arg2name, ...) {
+main() {
     function body
 }
 ```
@@ -43,10 +43,20 @@ function_name(arg1name, arg2name, ...) {
     block
 }
 ```
+or 
+```c++
+function_name() {
+    block
+}
+```
 
 - Function call:
 ```c++
 function_name(expr, expr, ...);
+```
+or
+```c++
+function_name();
 ```
 
 - Conditional: 
@@ -70,4 +80,3 @@ while (expr) do {
 write(expr);
 read(identificator);
 ```
-

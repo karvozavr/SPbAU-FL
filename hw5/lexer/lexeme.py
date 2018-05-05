@@ -186,7 +186,9 @@ class Delim(Lexeme):
         COLON=';',
         COMMA=',',
         OPEN='(',
-        CLOSE=')'
+        CLOSE=')',
+        BLOCK_OPEN='{',
+        BLOCK_CLOSE='}'
     )
 
     @staticmethod

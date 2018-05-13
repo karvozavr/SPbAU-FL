@@ -25,14 +25,14 @@ def test_number_parse():
     s = ['22', '23e-23-1', '42.5']
     ans = [22, 23e-23, 42.5]
     for test, answer in zip(s, ans):
-        kw = Number.parse(test, 0, 0)
+        kw = Num.parse(test, 0, 0)
         assert kw.value == answer
 
 
 def test_number_parse_error():
     s = ['a22', '23e', '42.e', '232qew']
     for test in s:
-        kw = Number.parse(test, 0, 0)
+        kw = Num.parse(test, 0, 0)
         assert kw is None
 
 

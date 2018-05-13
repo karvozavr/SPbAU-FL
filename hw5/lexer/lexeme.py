@@ -17,6 +17,9 @@ class Lexeme:
             return self.line == other.line and \
                    self.interval == other.interval
 
+        def __str__(self):
+            return 'line: {line} {begin}-{end}'.format(line=self.line, begin=self.interval[0], end=self.interval[1])
+
     __slots__ = ('value', 'info')
 
     def __init__(self, value, line, interval):
@@ -72,7 +75,7 @@ class Keyword(Lexeme):
         WHILE='while',
         DO='do',
         READ='read',
-        WRITE='write'
+        WRITE='write',
     )
 
     def __init__(self, value, line, interval):
@@ -87,16 +90,16 @@ class Keyword(Lexeme):
         return None
 
 
-class Number(Lexeme):
+class Num(Lexeme):
     def __init__(self, value, line, interval):
         super().__init__(value, line, interval)
 
     @staticmethod
     def parse(s: str, position: int, line: int):
-        number, length = Number._get_number(s[position:])
+        number, length = Num._get_number(s[position:])
         end = position + length
-        if length > 0 and is_terminal(s, end) and Number._good_number_end(s, end):
-            return Number(value=number, line=line, interval=(position, end))
+        if length > 0 and is_terminal(s, end) and Num._good_number_end(s, end):
+            return Num(value=number, line=line, interval=(position, end))
         return None
 
     @staticmethod
@@ -183,6 +186,7 @@ class Ident(Lexeme):
 
 class Delim(Lexeme):
     lexeme_value = dict(
+        ASSIGN=':=',
         COLON=';',
         COMMA=',',
         OPEN='(',

@@ -30,7 +30,7 @@ def parse_newline(s, pos):
 
 
 def next_lexeme(s, pos, line):
-    lexeme_types = [Keyword, Bool, Ident, Number, Delim, Op]
+    lexeme_types = [Keyword, Bool, Ident, Num, Delim, Op]
 
     for lexeme in lexeme_types:
         result = lexeme.parse(s=s, position=pos, line=line)

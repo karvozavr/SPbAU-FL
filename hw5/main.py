@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from lexer import Lexer, LexerError
+from parser import parse_program, render_ast
 
 
 def get_code_str(filename):
@@ -16,20 +16,15 @@ def print_lexemes(lexemes, delimiter='; '):
 
 
 @click.command()
-@click.option('--file', help='File with code to lex.')
-@click.option('--format', default='{type}({value}, {line}, {start}, {end})',
-              help='Lexeme format string. You may use: {type}, {value}, {line}, {start}, {end}')
+@click.option('--file', help='File with code to parse.')
 @click.option('--delimiter', default='; ', help='Delimiter for printing lexemes.')
-def main(file, format, delimiter):
-    lexer = Lexer(fmt=format, noexcept=False)
+def main(file):
     code_str = get_code_str(filename=file)
-    try:
-        lexemes = lexer.run(code_str)
-    except LexerError as e:
-        print('Lexer error at: {pos}.'.format(pos=e.position))
-        exit(1)
+    ast = parse_program(code=code_str)
+    if ast is not None:
+        render_ast(ast, )
     else:
-        print_lexemes(lexemes=lexemes, delimiter=delimiter)
+        print('Parser error.')
 
 
 if __name__ == '__main__':

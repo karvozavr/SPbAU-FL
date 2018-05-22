@@ -137,3 +137,15 @@ class TestParser(unittest.TestCase):
         '''
         result = parse_program(code=code)
         self.assertIsNotNone(result)
+
+    def test_loop(self):
+        code = '''
+                main() {
+                    loop {
+                        write(42);
+                    };
+                }
+                '''
+        result = parse_program(code=code)
+        self.assertIsNotNone(result)
+

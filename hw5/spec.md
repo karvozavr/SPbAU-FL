@@ -86,7 +86,7 @@ write(expr);
 read(identificator);
 ```
 
-#Syntax shugar
+# Syntax sugar
 
 - Operator-assignment:
 ```
@@ -104,9 +104,23 @@ if (a > b) {
     do();
 } fi;
 ```
-is desugating to
+    is desugating to
 ```
 if (a > b) {
     do();
 } else {}
+```
+
+- `loop` operator - infinite loop
+```
+loop {
+    write(42);
+};
+```
+
+is desugaring to:
+```
+while (1) {
+    write(42);
+};
 ```

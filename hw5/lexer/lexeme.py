@@ -77,6 +77,7 @@ class Keyword(Lexeme):
         READ='read',
         WRITE='write',
         FI='fi',
+        LOOP='loop'
     )
 
     def __init__(self, value, line, interval):

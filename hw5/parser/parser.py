@@ -1,7 +1,8 @@
+import copy
+
 from lexer import Lexer
 from lexer.lexeme import *
 from parser.util import *
-import copy
 
 Info = Lexeme.LexemeInfo
 
@@ -381,16 +382,38 @@ def error(position, text):
 
 
 def preprocess_lexemes(lexemes):
-    return desugar_fi(lexemes)
+    return desugar(lexemes)
 
 
-def desugar_fi(lexemes):
+def desugar(lexemes):
     result = []
     for tok in lexemes:
         if type(tok) is Keyword and tok.value is Keyword.lexeme_value['FI']:
             result.append(Keyword(value=Keyword.lexeme_value['ELSE'], interval=tok.info.interval, line=tok.info.line))
             result.append(Delim(value=Delim.lexeme_value['BLOCK_OPEN'], interval=tok.info.interval, line=tok.info.line))
-            result.append(Delim(value=Delim.lexeme_value['BLOCK_CLOSE'], interval=tok.info.interval, line=tok.info.line))
+            result.append(
+                Delim(value=Delim.lexeme_value['BLOCK_CLOSE'], interval=tok.info.interval, line=tok.info.line))
+            continue
+        if type(tok) is Keyword and tok.value is Keyword.lexeme_value['LOOP']:
+            result.append(Keyword(value=Keyword.lexeme_value['WHILE'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Delim(value=Delim.lexeme_value['OPEN'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Num(value=1.0, interval=tok.info.interval, line=tok.info.line))
+            result.append(
+                Delim(value=Delim.lexeme_value['CLOSE'], interval=tok.info.interval, line=tok.info.line))
+            continue
+        result.append(tok)
+    return result
+
+
+def desugar_loop(lexemes):
+    result = []
+    for tok in lexemes:
+        if type(tok) is Keyword and tok.value is Keyword.lexeme_value['LOOP']:
+            result.append(Keyword(value=Keyword.lexeme_value['WHILE'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Delim(value=Delim.lexeme_value['OPEN'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Num(value=1.0, interval=tok.info.interval, line=tok.info.line))
+            result.append(
+                Delim(value=Delim.lexeme_value['CLOSE'], interval=tok.info.interval, line=tok.info.line))
         else:
             result.append(tok)
     return result

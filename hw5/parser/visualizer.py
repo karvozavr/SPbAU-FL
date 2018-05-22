@@ -3,7 +3,7 @@ from collections import deque
 import graphviz as gv
 
 
-def render_ast(node):
+def render_ast(node, dir='rendered'):
     ast = gv.Graph()
     queue = deque()
     ast.attr('node', shape='box')
@@ -17,8 +17,8 @@ def render_ast(node):
             ast.node(name=str(id(child)), label=str(child) + '\n' + str(child.info))
             ast.edge(str(id(node)), str(id(child)))
 
-    ast.render(filename="ast", directory="rendered", view=True, cleanup=True)
-    ast.save(filename="ast.dot", directory="rendered")
+    ast.render(filename='ast', directory=dir, view=True, cleanup=True)
+    ast.save(filename='ast.dot', directory=dir)
 
 
 def renderNode(node):

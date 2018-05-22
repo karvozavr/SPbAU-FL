@@ -1,6 +1,7 @@
 from lexer import Lexer
 from lexer.lexeme import *
 from parser.util import *
+import copy
 
 Info = Lexeme.LexemeInfo
 
@@ -160,7 +161,7 @@ class Expression(ASTNode):
         return None, pos
 
 
-class InputFunction(ASTNode):
+class ReadFunction(ASTNode):
 
     def __init__(self, info, children):
         super().__init__(info, children=children)
@@ -175,17 +176,16 @@ class InputFunction(ASTNode):
             arg, new_pos = Identifier.parse(lexemes=lexemes, pos=pos + 2)
             if arg is not None:
                 if is_close_brace(lexemes[new_pos]):
-                    return InputFunction(info=Info(
+                    return ReadFunction(info=Info(
                         line=lexemes[pos].info.line,
                         interval=(
                             lexemes[pos].info.interval[0],
                             lexemes[new_pos].info.interval[1])),
                         children=[arg]), new_pos + 1
-
         return None, pos
 
 
-class OutputFunction(ASTNode):
+class PrintFunction(ASTNode):
 
     def __init__(self, info, children):
         super().__init__(info, children=children)
@@ -200,7 +200,7 @@ class OutputFunction(ASTNode):
             arg, new_pos = Expression.parse(lexemes=lexemes, pos=pos + 2)
             if arg is not None:
                 if is_close_brace(lexemes[new_pos]):
-                    return OutputFunction(info=Info(
+                    return PrintFunction(info=Info(
                         line=lexemes[pos].info.line,
                         interval=(
                             lexemes[pos].info.interval[0],
@@ -271,15 +271,23 @@ class Assignment(ASTNode):
     @staticmethod
     def parse(lexemes, pos):
         var, new_pos = Identifier.parse(lexemes=lexemes, pos=pos)
-        if var is not None and is_assignment_operator(lexemes[new_pos]):
-            value, new_pos = Expression.parse(lexemes=lexemes, pos=new_pos + 1)
-            if value is not None:
-                return Assignment(var=var, value=value), new_pos
+        if var is not None:
+            op = lexemes[new_pos]
+            if is_assignment_operator(op):
+                expr, new_pos = Expression.parse(lexemes=lexemes, pos=new_pos + 1)
+                if expr is not None:
+                    return Assignment(var=var, value=expr), new_pos
+            elif is_arithm_assignment_operator(op):
+                expr, new_pos = Expression.parse(lexemes=lexemes, pos=new_pos + 1)
+                if expr is not None:
+                    result = Operator(info=expr.info, op_type=op.value[0:1])
+                    result.children = [copy.copy(var), expr]
+                    return Assignment(var=var, value=result), new_pos
         return None, pos
 
 
 class Statement(ASTNode):
-    terminals = [InputFunction, OutputFunction, WhileLoop, Condition, FunctionCall, Assignment]
+    terminals = [ReadFunction, PrintFunction, WhileLoop, Condition, FunctionCall, Assignment]
 
     @staticmethod
     def parse(lexemes, pos):
@@ -366,6 +374,10 @@ class Program(ASTNode):
             else:
                 return None
         return Program(children=children)
+
+
+def error(position, text):
+    print('Error at {pos}: {text}'.format(pos=position, text=text))
 
 
 def parse_program(code):

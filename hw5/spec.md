@@ -10,6 +10,11 @@ statement;
 ...
 ```
 
+- All arithmetic assotiativity should be written explicitly:
+```c++
+print(2 * ((3 - 1) + 2))
+```
+
 - Any statement in block should be ended with `;`
 ```c++
 x = 20;

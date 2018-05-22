@@ -1,37 +1,47 @@
-import graphviz as gv
 from collections import deque
-from parser.parser import *
 
-
-def main():
-    g1 = gv.Graph(format='png')
-
-    g1.node('A')
-    g1.node('B')
-    g1.edge('A', 'B')
-
-    g1.view()
-    print(g1.source)
-
-    filename = g1.render(filename='img/tree.dot')
+import graphviz as gv
 
 
 def render_ast(node):
-    graph = gv.Graph(format='png')
+    ast = gv.Graph()
     queue = deque()
-    graph.node(name=str(id(node)), label=str(node))
+    ast.attr('node', shape='box')
+    ast.node(name=str(id(node)), label=str(node))
     queue.appendleft(node)
     while len(queue) > 0:
         node = queue.pop()
 
         for child in node.children:
             queue.appendleft(child)
-            graph.node(name=str(id(child)), label=str(child) + '\n' + str(child.info))
-            graph.edge(str(id(node)), str(id(child)))
+            ast.node(name=str(id(child)), label=str(child) + '\n' + str(child.info))
+            ast.edge(str(id(node)), str(id(child)))
 
-    graph.view()
-    print(graph.source)
+    ast.render(filename="ast", directory="rendered", view=True, cleanup=True)
+    ast.save(filename="ast.dot", directory="rendered")
 
 
-if __name__ == '__main__':
-    main()
+def renderNode(node):
+    info = node.info
+    if info is None:
+        return '''<<TABLE>
+                <TR>
+                    <TD>{name}</TD>
+                </TR>
+            </TABLE>>
+            '''.format(name=node.node_name)
+    else:
+        return '''
+            <<TABLE>
+                <TR>
+                    <TD>{name}</TD>
+                </TR>
+                <TR>
+                    <TD>Line: {line}</TD>
+                    <TD>Index: {left}-{right}</TD>
+                </TR>
+            </TABLE>>
+            '''.format(name=node.node_name,
+                       line=node.info.line,
+                       left=node.info.interval[0],
+                       right=node.info.interval[1])

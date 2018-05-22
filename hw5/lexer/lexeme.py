@@ -192,7 +192,11 @@ class Delim(Lexeme):
         OPEN='(',
         CLOSE=')',
         BLOCK_OPEN='{',
-        BLOCK_CLOSE='}'
+        BLOCK_CLOSE='}',
+        PLUS_ASSIGN='+=',
+        MINUS_ASSIGN='-=',
+        MUL_ASSIGN='*=',
+        DIV_ASSIGN='/=',
     )
 
     @staticmethod

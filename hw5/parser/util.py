@@ -47,3 +47,10 @@ def is_while(token):
 
 def is_assignment_operator(token):
     return type(token) is Delim and token.value is Delim.lexeme_value['ASSIGN']
+
+
+def is_arithm_assignment_operator(token):
+    return type(token) is Delim and token.value in [Delim.lexeme_value['PLUS_ASSIGN'],
+                                                    Delim.lexeme_value['MINUS_ASSIGN'],
+                                                    Delim.lexeme_value['MUL_ASSIGN'],
+                                                    Delim.lexeme_value['DIV_ASSIGN']]

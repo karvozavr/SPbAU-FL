@@ -1,1 +1,0 @@
-read;write;if;else,while,true

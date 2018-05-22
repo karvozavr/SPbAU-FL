@@ -380,7 +380,24 @@ def error(position, text):
     print('Error at {pos}: {text}'.format(pos=position, text=text))
 
 
+def preprocess_lexemes(lexemes):
+    return desugar_fi(lexemes)
+
+
+def desugar_fi(lexemes):
+    result = []
+    for tok in lexemes:
+        if type(tok) is Keyword and tok.value is Keyword.lexeme_value['FI']:
+            result.append(Keyword(value=Keyword.lexeme_value['ELSE'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Delim(value=Delim.lexeme_value['BLOCK_OPEN'], interval=tok.info.interval, line=tok.info.line))
+            result.append(Delim(value=Delim.lexeme_value['BLOCK_CLOSE'], interval=tok.info.interval, line=tok.info.line))
+        else:
+            result.append(tok)
+    return result
+
+
 def parse_program(code):
     lexer = Lexer()
     lexemes = lexer.run(code)
+    lexemes = preprocess_lexemes(lexemes=lexemes)
     return Program.parse(lexemes=lexemes, pos=0)

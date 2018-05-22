@@ -112,26 +112,28 @@ class TestParser(unittest.TestCase):
         render_ast(result)
 
     def test_plus_assign(self):
-        code = '''foo(x, y) {\n
-                   write(x + 2);\n
-               }\n
-               bar(x, y) {\n
-                   write(x + 2);\n
-               }\n
-               \n
-               main() {\n
-                   if (1 + (2 + (3 + (4 + (5 + (2 < 3)))))) {\n
-                       while 1 {\n
-                           read(x);\n
-                           write(foo(x, x));\n
-                           a += 2;
-                           b /= 3;
-                           c *= 4;
-                       };\n
-                   } else {\n
-                       write(404);\n
-                   };\n
-                   write(42 * 239);\n
-               }\n'''
+        code = '''
+        main() {
+            while (1) {\n
+                read(x);\n
+                write(foo(x, x));\n
+                a += 2;
+                b /= 3;
+                c *= 4;
+                d -= 1;
+            };\n
+        }
+        '''
         result = parse_program(code=code)
-        render_ast(result)
+        self.assertIsNotNone(result)
+
+    def test_fi(self):
+        code = '''
+        main() {
+            if (a > b) {
+                write(sugar_baby);
+            } fi;
+        }
+        '''
+        result = parse_program(code=code)
+        self.assertIsNotNone(result)

@@ -85,3 +85,28 @@ while (expr) do {
 write(expr);
 read(identificator);
 ```
+
+#Syntax shugar
+
+- Operator-assignment:
+```
+a += b;
+c -= d;
+e *= f;
+g /= h;
+```
+`a += b` is desugaring to `a = a + b`.
+
+- No else branch. 
+
+```
+if (a > b) {
+    do();
+} fi;
+```
+is desugating to
+```
+if (a > b) {
+    do();
+} else {}
+```

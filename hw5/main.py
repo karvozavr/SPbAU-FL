@@ -17,7 +17,6 @@ def print_lexemes(lexemes, delimiter='; '):
 
 @click.command()
 @click.option('--file', help='File with code to parse.')
-@click.option('--delimiter', default='; ', help='Delimiter for printing lexemes.')
 def main(file):
     code_str = get_code_str(filename=file)
     ast = parse_program(code=code_str)

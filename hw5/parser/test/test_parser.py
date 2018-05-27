@@ -147,3 +147,17 @@ class TestParser(unittest.TestCase):
         result = parse_program(code=code)
         self.assertIsNotNone(result)
 
+    def test_block(self):
+        code = '''
+                if (1 + (2 + (3 + (4 + (5 + (2 < 3)))))) {
+                   while 1 {
+                       read(x);
+                      write(foo(x, x));
+                   };
+               } else {
+                   write(404);
+               };
+               write(42 * 239);
+                '''
+        result = parse_program(code=code)
+        self.assertIsNotNone(result)

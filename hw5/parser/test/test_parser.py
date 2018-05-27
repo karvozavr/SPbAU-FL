@@ -90,24 +90,22 @@ class TestParser(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def test_render(self):
-        code = '''foo(x, y) {\n
-                   write(x + 2);\n
-               }\n
-               bar(x, y) {\n
-                   write(x + 2);\n
-               }\n
-               \n
-               main() {\n
-                   if (1 + (2 + (3 + (4 + (5 + (2 < 3)))))) {\n
-                       while 1 {\n
-                           read(x);\n
-                          write(foo(x, x));\n
-                       };\n
-                   } else {\n
-                       write(404);\n
-                   };\n
-                   write(42 * 239);\n
-               }\n'''
+        code = '''foo(x, y) {
+                   write(x + 2);
+               }
+               bar(x, y) {
+                   write(x + 2);
+               }
+               if (1 + (2 + (3 + (4 + (5 + (2 < 3)))))) {
+                   while 1 {
+                       read(x);
+                      write(foo(x, x));
+                   };
+               } else {
+                   write(404);
+               };
+               write(42 * 239);
+               '''
         result = parse_program(code=code)
         render_ast(result)
 

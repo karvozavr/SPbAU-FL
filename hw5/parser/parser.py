@@ -373,7 +373,16 @@ class Program(ASTNode):
                 children.append(definition)
                 current_pos = new_pos
             else:
-                return None
+                lexemes.append(Delim(value=Delim.lexeme_value['BLOCK_CLOSE'], line=lexemes[current_pos].info.line,
+                                     interval=lexemes[current_pos].info.interval))
+                block, new_pos = Block.parse(lexemes=lexemes, pos=current_pos)
+                if block is not None:
+                    block.node_name = 'Block'
+                    children.append(block)
+                    break
+                else:
+                    return None
+
         return Program(children=children)
 
 

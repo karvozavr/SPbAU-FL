@@ -17,13 +17,15 @@ print(2 * ((3 - 1) + 2))
 
 - Any statement in block should be ended with `;`
 ```c++
-x = 20;
+main() {
+x := 20;
 if (a > b) then {
     write(a);
     read(b);
 } else {
-    do a barrel roll;
+    x := 42;
 };
+}
 ```
 
 - Highest level constructions are function definitions only!

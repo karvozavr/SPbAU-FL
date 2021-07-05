@@ -1,0 +1,6 @@
+read a;
+read b;
+if a > b then
+    write a * 2 - b + 3.14 - (55 + 33.2);
+else
+    write error;
